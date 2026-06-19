@@ -667,6 +667,23 @@ function App() {
   const [caption, setCaption] = useState("");
   const [, forceTick] = useState(0);
 
+  // 실제 지도 사용 여부: 유효한 카카오 키가 있으면 KakaoMap, 없으면 SVG 시뮬레이션(CityMap).
+  // (config.example 의 "여기에…" 플레이스홀더는 키로 취급하지 않음)
+  const kakaoKey = (typeof window !== "undefined" && window.KAKAO_MAP_KEY) || "";
+  const hasKakao = !!kakaoKey && !kakaoKey.startsWith("여기에");
+
+  // 실제 GPS 위치 (키가 있을 때만 추적 → 시뮬레이션 모드에선 권한 요청 안 함)
+  const [userGeo, setUserGeo] = useState(null);
+  useEffect(() => {
+    if (!hasKakao || !navigator.geolocation) return;
+    const id = navigator.geolocation.watchPosition(
+      (p) => setUserGeo({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }),
+      () => {}, // 권한 거부/실패 시 무시 (지도는 경로 기준으로 계속 표시)
+      { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, [hasKakao]);
+
   // settings (persisted)
   const [settings, setSettings] = useState(() => {
     try { return { voice: true, dark: false, a11y: false, ...(JSON.parse(localStorage.getItem("tv_settings")) || {}) }; }
@@ -817,9 +834,15 @@ function App() {
     <div style={{ position: "absolute", inset: 0, background: C.bg, overflow: "hidden",
       fontFamily: "'Pretendard', system-ui, sans-serif", transition: "background 300ms" }}>
       <div style={{ position: "absolute", inset: 0 }}>
-        <CityMap userDist={userDist} signalsState={signalsState} mode={mapMode} dark={dark} a11y={a11y}
-          activeSignalId={detailId}
-          onSignalTap={(id) => (screen === "summary" || screen === "nav") && setDetailId(id)} />
+        {hasKakao ? (
+          <KakaoMap userDist={userDist} signalsState={signalsState} mode={mapMode} dark={dark} a11y={a11y}
+            activeSignalId={detailId} userGeo={userGeo}
+            onSignalTap={(id) => (screen === "summary" || screen === "nav") && setDetailId(id)} />
+        ) : (
+          <CityMap userDist={userDist} signalsState={signalsState} mode={mapMode} dark={dark} a11y={a11y}
+            activeSignalId={detailId}
+            onSignalTap={(id) => (screen === "summary" || screen === "nav") && setDetailId(id)} />
+        )}
       </div>
 
       {screen !== "search" && (

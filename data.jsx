@@ -2,15 +2,18 @@
    All signals are pedestrian crossings. SVG coords live in a 400x700 viewBox. */
 
 // Route nodes: start + signals + destination, in walking order.
-// d = cumulative distance from start (meters). svg = position in map.
+// d   = cumulative distance from start (meters)
+// svg = position in the fallback SVG map (400x700 viewBox)
+// geo = real-world lat/lng, used by the Kakao map when a key is present.
+//       (demo route placed around 시청·을지로, 서울 — replaced by TMap route in Phase 2)
 const NODES = [
-  { id: "start", name: "현재 위치", svg: { x: 55, y: 620 }, d: 0 },
-  { id: "s1", name: "중앙로 입구 횡단보도", svg: { x: 75, y: 500 }, d: 110 },
-  { id: "s2", name: "중앙로 사거리", svg: { x: 200, y: 500 }, d: 240 },
-  { id: "s3", name: "구립도서관 앞", svg: { x: 200, y: 340 }, d: 400 },
-  { id: "s4", name: "시청역 사거리", svg: { x: 345, y: 340 }, d: 540 },
-  { id: "s5", name: "근린공원 횡단보도", svg: { x: 345, y: 180 }, d: 700 },
-  { id: "dest", name: "도착", svg: { x: 345, y: 80 }, d: 800 },
+  { id: "start", name: "현재 위치", svg: { x: 55, y: 620 }, d: 0, geo: { lat: 37.5635, lng: 126.9760 } },
+  { id: "s1", name: "중앙로 입구 횡단보도", svg: { x: 75, y: 500 }, d: 110, geo: { lat: 37.5643, lng: 126.9766 } },
+  { id: "s2", name: "중앙로 사거리", svg: { x: 200, y: 500 }, d: 240, geo: { lat: 37.5652, lng: 126.9773 } },
+  { id: "s3", name: "구립도서관 앞", svg: { x: 200, y: 340 }, d: 400, geo: { lat: 37.5662, lng: 126.9776 } },
+  { id: "s4", name: "시청역 사거리", svg: { x: 345, y: 340 }, d: 540, geo: { lat: 37.5671, lng: 126.9783 } },
+  { id: "s5", name: "근린공원 횡단보도", svg: { x: 345, y: 180 }, d: 700, geo: { lat: 37.5681, lng: 126.9788 } },
+  { id: "dest", name: "도착", svg: { x: 345, y: 80 }, d: 800, geo: { lat: 37.5688, lng: 126.9793 } },
 ];
 
 // Signal definitions (the crossings). cycle = green + red (seconds). offset phases them.
@@ -124,6 +127,30 @@ function routePath() {
   return NODES.map((n, i) => `${i === 0 ? "M" : "L"} ${n.svg.x} ${n.svg.y}`).join(" ");
 }
 
+// Interpolate a real-world lat/lng at a given cumulative distance along the route.
+// Mirrors svgAtDist, but in geo space — used by the Kakao map (walker, signals).
+function latLngAtDist(d) {
+  d = Math.max(0, Math.min(TOTAL_DIST, d));
+  for (let i = 1; i < NODES.length; i++) {
+    const a = NODES[i - 1], b = NODES[i];
+    if (d <= b.d) {
+      const t = (d - a.d) / (b.d - a.d || 1);
+      return { lat: a.geo.lat + (b.geo.lat - a.geo.lat) * t, lng: a.geo.lng + (b.geo.lng - a.geo.lng) * t };
+    }
+  }
+  const last = NODES[NODES.length - 1];
+  return { ...last.geo };
+}
+
+// Approx straight-line distance (meters) between two lat/lng points (haversine).
+function geoDistance(a, b) {
+  const R = 6371000, toRad = (x) => (x * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
 const mmss = (sec) => {
   sec = Math.max(0, Math.round(sec));
   const m = Math.floor(sec / 60);
@@ -136,5 +163,5 @@ const fmtDist = (m) => (m >= 1000 ? `${(m / 1000).toFixed(1)}km` : `${Math.round
 Object.assign(window, {
   NODES, SIGNALS, TOTAL_DIST, BASE_SPEED, SPEED_MIN, SPEED_MAX,
   signalPhase, greenWindows, recommendSpeed, svgAtDist, routePath,
-  mmss, kmh, fmtDist,
+  latLngAtDist, geoDistance, mmss, kmh, fmtDist,
 });

@@ -20,6 +20,18 @@ start traffic_view.html
 
 API 키 없이도 **시뮬레이션 모드**로 바로 동작합니다.
 
+## 실제 지도 + GPS 켜기 (카카오 지도)
+
+키를 꽂으면 SVG 시뮬레이션이 **실제 카카오 지도 + 실제 GPS 위치**로 자동 전환됩니다.
+
+1. [developers.kakao.com](https://developers.kakao.com) → 내 애플리케이션 → **JavaScript 키** 복사.
+2. **플랫폼 > Web** 에 사이트 도메인 등록 (로컬 테스트는 `http://localhost`).
+3. `config.example.js` 를 `config.local.js` 로 복사하고 `window.KAKAO_MAP_KEY` 에 키를 넣습니다.
+4. 브라우저에서 `traffic_view.html` 을 열면 — 실제 지도 위에 경로·신호등·내 GPS 위치가 표시됩니다.
+
+> 키가 없으면 기존 시뮬레이션 지도로 그대로 동작합니다. (GPS는 키가 있을 때만 권한을 요청합니다.)
+> GPS 정확도를 위해 HTTPS 또는 localhost 환경을 권장합니다.
+
 ## 실시간 신호 연동 설정 (선택)
 
 서울시 실시간 보행신호와 연동하려면 공공데이터포털 인증키가 필요합니다.
