@@ -1,0 +1,11 @@
+# 로컬 비밀 설정 (API 키) — 커밋 금지
+config.local.js
+
+# OS / 에디터
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# 로그
+*.log
