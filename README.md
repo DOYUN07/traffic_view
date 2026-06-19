@@ -43,11 +43,24 @@ API 키 없이도 **시뮬레이션 모드**로 바로 동작합니다.
 
 > `config.local.js` 는 `.gitignore`에 등록돼 있어 키가 커밋되지 않습니다.
 
+## 설치형 앱 (PWA)
+
+매니페스트와 서비스워커가 포함돼 있어, **HTTPS로 배포하면 폰 홈화면에 설치**할 수 있고 오프라인 내성이 생깁니다.
+
+- `manifest.webmanifest` — 앱 이름·아이콘·테마색·standalone 표시
+- `sw.js` — network-first 캐시(오프라인 폴백)
+- `icon.svg` — 앱 아이콘 (maskable)
+
+> ⚠️ 서비스워커는 HTTPS 또는 `localhost` 에서만 등록됩니다. `file://` 로 직접 열면 무시되며 일반 웹앱처럼 동작합니다.
+> 정식 설치 동작은 배포 환경(Vercel/GitHub Pages 등)에서 확인하세요. (아이콘은 호환성을 위해 PNG 192/512 추가 권장)
+
 ## 파일 구성
 
 | 파일 | 역할 |
 |------|------|
-| `traffic_view.html` | 진입점, React·Babel 로드 및 스크립트 연결 |
+| `traffic_view.html` | 진입점, React·Babel 로드 및 스크립트 연결 (PWA 메타·SW 등록) |
+| `kakao_map.jsx` | 카카오 실제 지도 + GPS (KAKAO_MAP_KEY 있을 때) |
+| `manifest.webmanifest` · `sw.js` · `icon.svg` | PWA 설치/오프라인 |
 | `data.jsx` | 경로 노드(NODES), 신호등 데이터(SIGNALS), 타이밍·속도 추천 로직 |
 | `signal_api.jsx` | 공공데이터포털 실시간 보행신호 API 연동 (`SignalAPI.fetchOnce`) |
 | `map.jsx` | SVG 도시 지도 컴포넌트 (`CityMap`) |

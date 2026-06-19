@@ -1,0 +1,9 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TrafficView">
+  <!-- maskable safe zone: 핵심 요소를 중앙 80% 안에 배치 -->
+  <rect width="512" height="512" rx="112" fill="#1C1D21"/>
+  <circle cx="256" cy="158" r="46" fill="#E5484D"/>
+  <circle cx="256" cy="256" r="46" fill="#E8A317"/>
+  <circle cx="256" cy="354" r="46" fill="#1FA463"/>
+  <rect x="320" y="112" width="13" height="288" rx="6" fill="#3A3E48"/>
+  <path d="M356 128 L408 128 L408 180" stroke="#1FA463" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

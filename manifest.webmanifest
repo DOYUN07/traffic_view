@@ -1,0 +1,20 @@
+{
+  "name": "신호등 길찾기 · TrafficView",
+  "short_name": "TrafficView",
+  "description": "보행 신호 타이밍에 맞춰 걸음 속도를 안내하는 보행 내비게이션",
+  "lang": "ko",
+  "start_url": "./traffic_view.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3F1EC",
+  "theme_color": "#1C1D21",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
